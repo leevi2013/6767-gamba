@@ -1,17 +1,155 @@
-========== DATEI: settings.gradle ==========
+======================== DATEI: .github/workflows/main.yml ========================
 
-pluginManagement {
-    repositories {
-        maven { url = 'https://maven.fabricmc.net/' }
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
+name: Build Blue Gamba
 
-rootProject.name = 'bluegamba'
+"on":
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile mod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Build mod
+        run: gradle build --no-daemon
+
+      - name: Upload mod JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bluegamba-mod
+          path: build/libs/bluegamba-*.jar
+          if-no-files-found: error
 
 
-========== DATEI: build.gradle ==========
+======================== DATEI: .gitignore ========================
+
+.gradle/
+build/
+out/
+run/
+.idea/
+*.iml
+.DS_Store
+
+
+======================== DATEI: GITHUB-FIX.md ========================
+
+# GitHub-Fix für den Fehler „Invalid workflow file“
+
+Deine bisherige .github/workflows/main.yml enthielt den ganzen Projekttext. GitHub erwartet dort ausschließlich YAML.
+
+1. Lade diese korrigierte ZIP herunter und entpacke sie.
+2. Kopiere alle Dateien und Ordner aus dem entpackten Projekt direkt in den Hauptordner deines geklonten bluegamba-Repositorys.
+3. Überschreibe Dateien bei Nachfrage. Achte besonders darauf, dass .github/workflows/main.yml überschrieben wird.
+4. Die korrekte main.yml beginnt mit name: Build Blue Gamba und enthält nur Workflow-YAML.
+5. Committe und pushe die Dateien.
+6. Öffne GitHub → Actions. Der Build sollte starten.
+
+Nicht den Text aller Dateien als eine einzelne Datei hochladen. Jede Datei muss an ihrem Pfad separat existieren.
+
+
+======================== DATEI: LICENSE ========================
+
+MIT License
+
+Copyright (c) 2026 Blue Gamba contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+
+======================== DATEI: README.md ========================
+
+# Blue Gamba — Minecraft 1.21.11 (Fabric)
+
+Blue Gamba ist eine clientseitige Demo-Slotmaschine mit blauem GUI, 3×3 Erz-Walzen und lokalem Demoguthaben.
+
+## Funktionen
+
+- Taste G öffnet das Menü (unter Optionen → Steuerung anpassbar).
+- Blaue Chest-inspirierte Oberfläche mit drei Walzen und einer markierten mittleren Gewinnreihe.
+- Drehzeit zufällig zwischen 2 und 4 Sekunden.
+- Einsätze müssen ganzzahlig und größer als 0 sein und dürfen das Guthaben nicht überschreiten.
+- Ungültige Einsätze werden abgelehnt und im GUI/Chat gemeldet.
+- Nur drei gleiche Symbole in der mittleren Reihe zahlen aus.
+- Demoguthaben startet bei 1.000 Coins und wird lokal unter config/bluegamba.properties gespeichert.
+
+## Multiplikatoren
+
+| Drei gleiche Symbole | Auszahlung |
+|---|---:|
+| Kohleerz | 0,5x |
+| Eisenerz | 1,2x |
+| Golderz | 2,0x |
+| Diamanterz | 5,0x |
+| Smaragderz | 10,0x |
+| Ancient Debris | 25,0x |
+
+Der Multiplikator beschreibt die Gesamtauszahlung inklusive Einsatz.
+Beispiel: 100 Coins Einsatz und drei Diamanterze zahlen 500 Coins aus; der Nettogewinn beträgt +400 Coins. Bei drei Kohleerzen werden 50 Coins ausgezahlt; der Nettverlust beträgt 50 Coins. Bei keinem Drilling geht der ganze Einsatz verloren. Auszahlungen werden auf ganze Coins gerundet.
+
+## Projektstruktur
+
+Jede Datei muss getrennt am angegebenen Pfad liegen. Kopiere nicht den kompletten Projekttext in main.yml. In .github/workflows/main.yml darf ausschließlich der YAML-Workflow stehen. settings.gradle, build.gradle, gradle.properties, Java-Dateien und JSON-Dateien gehören in ihre jeweils eigenen Dateien.
+
+## Versionen und Voraussetzungen
+
+- Minecraft Java Edition 1.21.11
+- Java JDK 21
+- Fabric Loader 0.18.1 oder neuer
+- Fabric API passend für Minecraft 1.21.11
+- Gradle 8.14.3
+- Fabric Loom 1.14.10
+
+## Lokal bauen
+
+1. Installiere JDK 21 und Gradle 8.14.3.
+2. Öffne ein Terminal im Projekt-Hauptordner, in dem settings.gradle und build.gradle liegen.
+3. Führe gradle build --no-daemon aus.
+4. Bei Erfolg liegt die Mod-JAR unter build/libs/bluegamba-1.0.0.jar.
+5. Kopiere die JAR und die passende Fabric API in den .minecraft/mods-Ordner.
+
+## GitHub Build
+
+1. Lade die Dateien und Ordner aus diesem ZIP in den Hauptordner des GitHub-Repositorys.
+2. Ersetze die bisherige fehlerhafte .github/workflows/main.yml und verwende die Datei main.yml aus diesem Projekt.
+3. Committe und pushe die Änderungen.
+4. Öffne den Reiter Actions. Der Workflow baut das Projekt und stellt bei Erfolg bluegamba-mod unter Artifacts bereit.
+
+## Einschränkung
+
+Das ist eine clientseitige Demo. Guthaben wird lokal gespeichert und nicht zwischen Spielern oder auf einem Server synchronisiert. Der Quellcode wurde nicht gegen die externen Minecraft/Fabric-Abhängigkeiten kompiliert.
+
+
+======================== DATEI: build.gradle ========================
 
 plugins {
     id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
@@ -57,12 +195,12 @@ tasks.withType(JavaCompile).configureEach {
 
 jar {
     from('LICENSE') {
-        rename { "${it}_${project.base.archivesName.get()}" }
+        rename { "${it}_${project.archives_base_name.get()}" }
     }
 }
 
 
-========== DATEI: gradle.properties ==========
+======================== DATEI: gradle.properties ========================
 
 org.gradle.jvmargs=-Xmx2G
 org.gradle.parallel=true
@@ -70,63 +208,27 @@ org.gradle.parallel=true
 minecraft_version=1.21.11
 loader_version=0.18.1
 fabric_api_version=0.141.5+1.21.11
-loom_version=1.14-SNAPSHOT
+loom_version=1.14.10
 
 mod_version=1.0.0
 maven_group=de.bluegamba
 archives_base_name=bluegamba
 
 
-========== DATEI: .gitignore ==========
+======================== DATEI: settings.gradle ========================
 
-.gradle/
-build/
-out/
-run/
-.idea/
-*.iml
-.DS_Store
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 
-
-========== DATEI: .github/workflows/build.yml ==========
-
-name: Build Blue Gamba
-
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.14.3'
-
-      - name: Build mod
-        run: gradle build
-
-      - name: Upload mod JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: bluegamba-mod
-          path: build/libs/*.jar
+rootProject.name = 'bluegamba'
 
 
-========== DATEI: src/main/java/de/bluegamba/BlueGambaClient.java ==========
+======================== DATEI: src/main/java/de/bluegamba/BlueGambaClient.java ========================
 
 package de.bluegamba;
 
@@ -135,7 +237,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -144,7 +245,8 @@ public final class BlueGambaClient implements ClientModInitializer {
     private static final KeyMapping.Category CATEGORY =
             KeyMapping.Category.register(
                     Identifier.fromNamespaceAndPath(
-                            "bluegamba", "controls"
+                            "bluegamba",
+                            "controls"
                     )
             );
 
@@ -177,7 +279,7 @@ public final class BlueGambaClient implements ClientModInitializer {
 }
 
 
-========== DATEI: src/main/java/de/bluegamba/GambaAccount.java ==========
+======================== DATEI: src/main/java/de/bluegamba/GambaAccount.java ========================
 
 package de.bluegamba;
 
@@ -189,10 +291,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-/**
- * Lokales Demo-Guthaben.
- * Dies ist absichtlich keine Server- oder Echtgeld-Waehrung.
- */
 final class GambaAccount {
 
     private static final long START_BALANCE = 1_000L;
@@ -262,7 +360,7 @@ final class GambaAccount {
 }
 
 
-========== DATEI: src/main/java/de/bluegamba/GambaScreen.java ==========
+======================== DATEI: src/main/java/de/bluegamba/GambaScreen.java ========================
 
 package de.bluegamba;
 
@@ -278,10 +376,6 @@ import net.minecraft.world.item.Items;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Eine kompakte, blau gehaltene Chest-inspirierte Slotmaschine
- * mit 3x3 Erz-Walzen.
- */
 public final class GambaScreen extends Screen {
 
     private static final int PANEL_WIDTH = 432;
@@ -302,14 +396,11 @@ public final class GambaScreen extends Screen {
     private Button spinButton;
 
     private boolean spinning;
-
     private long activeWager;
     private long spinEndsAtNanos;
     private long nextShuffleAtNanos;
 
-    private String status =
-            "Gib einen Einsatz ein und druecke DREHEN.";
-
+    private String status = "Gib einen Einsatz ein und druecke DREHEN.";
     private int statusColor = WHITE;
 
     public GambaScreen() {
@@ -319,11 +410,9 @@ public final class GambaScreen extends Screen {
                 Items.COAL_ORE,
                 Items.IRON_ORE,
                 Items.GOLD_ORE,
-
                 Items.DIAMOND_ORE,
                 Items.EMERALD_ORE,
                 Items.ANCIENT_DEBRIS,
-
                 Items.COAL_ORE,
                 Items.DIAMOND_ORE,
                 Items.EMERALD_ORE
@@ -366,7 +455,6 @@ public final class GambaScreen extends Screen {
         ).build();
 
         spinButton.active = !spinning;
-
         addRenderableWidget(spinButton);
     }
 
@@ -393,7 +481,6 @@ public final class GambaScreen extends Screen {
             return;
         }
 
-        // Einsatzschutz: 0 und negative Werte sind nicht erlaubt.
         if (wager <= 0) {
             showError(
                     "Der Einsatz muss mindestens 1 Coin betragen."
@@ -409,22 +496,21 @@ public final class GambaScreen extends Screen {
         }
 
         activeWager = wager;
-
-        // Den Einsatz vor Beginn der Animation abziehen.
         GambaAccount.balance -= wager;
         GambaAccount.save();
 
         long now = System.nanoTime();
 
-        // Zufällige Dauer von 2.000 bis einschließlich 4.000 ms.
         long durationMillis =
-                ThreadLocalRandom.current().nextLong(2_000L, 4_001L);
+                ThreadLocalRandom.current().nextLong(
+                        2_000L,
+                        4_001L
+                );
 
         spinEndsAtNanos =
                 now + durationMillis * 1_000_000L;
 
         nextShuffleAtNanos = now;
-
         spinning = true;
 
         statusColor = LIGHT_BLUE;
@@ -441,8 +527,9 @@ public final class GambaScreen extends Screen {
         Minecraft client = Minecraft.getInstance();
 
         if (client.player != null) {
-            client.player.sendSystemMessage(
-                    Component.literal("[Blue Gamba] " + message)
+            client.player.displayClientMessage(
+                    Component.literal("[Blue Gamba] " + message),
+                    false
             );
         }
     }
@@ -464,13 +551,11 @@ public final class GambaScreen extends Screen {
         wagerInput.active = true;
         spinButton.active = true;
 
-        // Gewinnlinie: mittlere Reihe, Indizes 3, 4 und 5.
         Ore left = findOre(symbols[3]);
         Ore middle = findOre(symbols[4]);
         Ore right = findOre(symbols[5]);
 
         if (left == middle && middle == right) {
-
             long payout = Math.round(
                     activeWager * left.multiplier
             );
@@ -480,20 +565,16 @@ public final class GambaScreen extends Screen {
 
             long net = payout - activeWager;
 
-            status =
-                    "3x " + left.label
+            status = "3x " + left.label
                     + "! Auszahlung: " + payout
                     + " | Netto: " + signed(net)
                     + " Coins";
 
             statusColor =
-                    net > 0
-                            ? GREEN
-                            : (net < 0 ? GOLD : WHITE);
+                    net > 0 ? GREEN : (net < 0 ? GOLD : WHITE);
 
         } else {
-            status =
-                    "Kein Drilling. Verlorener Einsatz: "
+            status = "Kein Drilling. Verlorener Einsatz: "
                     + activeWager + " Coins.";
 
             statusColor = RED;
@@ -541,7 +622,6 @@ public final class GambaScreen extends Screen {
             } else if (now >= nextShuffleAtNanos) {
                 randomizeSymbols();
 
-                // Walzen alle 75 Millisekunden aktualisieren.
                 nextShuffleAtNanos = now + 75_000_000L;
             }
         }
@@ -557,7 +637,6 @@ public final class GambaScreen extends Screen {
         int left = (this.width - PANEL_WIDTH) / 2;
         int top = (this.height - PANEL_HEIGHT) / 2;
 
-        // Chest-inspiriertes Panel mit blauem Rahmen.
         graphics.fill(
                 left - 4,
                 top - 4,
@@ -627,9 +706,7 @@ public final class GambaScreen extends Screen {
 
         graphics.drawString(
                 this.font,
-                spinning
-                        ? "DREHT..."
-                        : "2-4 Sekunden pro Dreh",
+                spinning ? "DREHT..." : "2-4 Sekunden pro Dreh",
                 left + 279,
                 top + 223,
                 spinning ? GOLD : 0xFFB9D8F3
@@ -660,7 +737,6 @@ public final class GambaScreen extends Screen {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-
                 int x = startX + col * 39;
                 int y = startY + row * 39;
 
@@ -674,45 +750,11 @@ public final class GambaScreen extends Screen {
                         ? LIGHT_BLUE
                         : 0xFF37618B;
 
-                graphics.fill(
-                        x,
-                        y,
-                        x + 34,
-                        y + 34,
-                        fill
-                );
-
-                graphics.fill(
-                        x,
-                        y,
-                        x + 34,
-                        y + 2,
-                        outline
-                );
-
-                graphics.fill(
-                        x,
-                        y + 32,
-                        x + 34,
-                        y + 34,
-                        outline
-                );
-
-                graphics.fill(
-                        x,
-                        y,
-                        x + 2,
-                        y + 34,
-                        outline
-                );
-
-                graphics.fill(
-                        x + 32,
-                        y,
-                        x + 34,
-                        y + 34,
-                        outline
-                );
+                graphics.fill(x, y, x + 34, y + 34, fill);
+                graphics.fill(x, y, x + 34, y + 2, outline);
+                graphics.fill(x, y + 32, x + 34, y + 34, outline);
+                graphics.fill(x, y, x + 2, y + 34, outline);
+                graphics.fill(x + 32, y, x + 34, y + 34, outline);
 
                 graphics.renderItem(
                         symbols[row * 3 + col],
@@ -746,7 +788,6 @@ public final class GambaScreen extends Screen {
 
         for (int i = 0; i < ORES.length; i++) {
             Ore ore = ORES[i];
-
             int y = top + 57 + i * 17;
 
             graphics.renderItem(
@@ -768,9 +809,7 @@ public final class GambaScreen extends Screen {
                     ore.multiplierLabel,
                     left + 350,
                     y,
-                    ore.multiplier >= 5.0
-                            ? GOLD
-                            : 0xFFB9D8F3
+                    ore.multiplier >= 5.0 ? GOLD : 0xFFB9D8F3
             );
         }
     }
@@ -784,10 +823,7 @@ public final class GambaScreen extends Screen {
         String remaining = status;
         int lineY = y;
 
-        for (int line = 0;
-             line < 2 && !remaining.isEmpty();
-             line++) {
-
+        for (int line = 0; line < 2 && !remaining.isEmpty(); line++) {
             String current =
                     this.font.plainSubstrByWidth(
                             remaining,
@@ -816,11 +852,8 @@ public final class GambaScreen extends Screen {
 
     @Override
     public void onClose() {
-        // Während der Animation bleibt das GUI offen.
         if (spinning) {
-            status =
-                    "Bitte warten: Die Drehung muss erst enden.";
-
+            status = "Bitte warten: Die Drehung muss erst enden.";
             statusColor = GOLD;
             return;
         }
@@ -834,48 +867,12 @@ public final class GambaScreen extends Screen {
     }
 
     private enum Ore {
-
-        COAL(
-                Items.COAL_ORE,
-                "Kohle",
-                0.5,
-                "0.5x"
-        ),
-
-        IRON(
-                Items.IRON_ORE,
-                "Eisen",
-                1.2,
-                "1.2x"
-        ),
-
-        GOLD(
-                Items.GOLD_ORE,
-                "Gold",
-                2.0,
-                "2.0x"
-        ),
-
-        DIAMOND(
-                Items.DIAMOND_ORE,
-                "Diamant",
-                5.0,
-                "5.0x"
-        ),
-
-        EMERALD(
-                Items.EMERALD_ORE,
-                "Smaragd",
-                10.0,
-                "10.0x"
-        ),
-
-        NETHERITE(
-                Items.ANCIENT_DEBRIS,
-                "Netherit",
-                25.0,
-                "25.0x"
-        );
+        COAL(Items.COAL_ORE, "Kohle", 0.5, "0.5x"),
+        IRON(Items.IRON_ORE, "Eisen", 1.2, "1.2x"),
+        GOLD(Items.GOLD_ORE, "Gold", 2.0, "2.0x"),
+        DIAMOND(Items.DIAMOND_ORE, "Diamant", 5.0, "5.0x"),
+        EMERALD(Items.EMERALD_ORE, "Smaragd", 10.0, "10.0x"),
+        NETHERITE(Items.ANCIENT_DEBRIS, "Netherit", 25.0, "25.0x");
 
         private final Item item;
         private final String label;
@@ -897,14 +894,30 @@ public final class GambaScreen extends Screen {
 }
 
 
-========== DATEI: src/main/resources/fabric.mod.json ==========
+======================== DATEI: src/main/resources/assets/bluegamba/lang/de_de.json ========================
+
+{
+  "key.category.bluegamba.controls": "Blue Gamba",
+  "key.bluegamba.open": "Gamba-Slotmaschine oeffnen"
+}
+
+
+======================== DATEI: src/main/resources/assets/bluegamba/lang/en_us.json ========================
+
+{
+  "key.category.bluegamba.controls": "Blue Gamba",
+  "key.bluegamba.open": "Open Gamba Slot Machine"
+}
+
+
+======================== DATEI: src/main/resources/fabric.mod.json ========================
 
 {
   "schemaVersion": 1,
   "id": "bluegamba",
   "version": "${version}",
   "name": "Blue Gamba",
-  "description": "Eine blaue, Chest-inspirierte Erz-Slotmaschine als lokale Gamba-Demo fuer Minecraft.",
+  "description": "Eine blaue Erz-Slotmaschine als lokale Gamba-Demo fuer Minecraft.",
   "authors": ["BlueGamba"],
   "license": "MIT",
   "environment": "client",
@@ -920,111 +933,3 @@ public final class GambaScreen extends Screen {
     "fabric-api": "*"
   }
 }
-
-
-========== DATEI: src/main/resources/assets/bluegamba/lang/de_de.json ==========
-
-{
-  "key.category.bluegamba.controls": "Blue Gamba",
-  "key.bluegamba.open": "Gamba-Slotmaschine oeffnen"
-}
-
-
-========== DATEI: src/main/resources/assets/bluegamba/lang/en_us.json ==========
-
-{
-  "key.category.bluegamba.controls": "Blue Gamba",
-  "key.bluegamba.open": "Open Gamba Slot Machine"
-}
-
-
-========== DATEI: LICENSE ==========
-
-MIT License
-
-Copyright (c) 2026 Blue Gamba contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-
-
-========== DATEI: README.md ==========
-
-# Blue Gamba — Minecraft 1.21.11 (Fabric)
-
-Eine blaue, Chest-inspirierte Erz-Slotmaschine als lokale Demo für Minecraft Java 1.21.11.
-
-## Funktionen
-
-- `G` öffnet die Slotmaschine (Taste ist unter Optionen → Steuerung → Tastenbelegung änderbar).
-- Blaues GUI im Chest-Stil mit 3×3 Erz-Walzen und klar getrennten Textbereichen.
-- Drehzeit zufällig zwischen 2 und 4 Sekunden.
-- Einsatz wird vor dem Start validiert: Zahl muss ganzzahlig, größer als 0 und höchstens so groß wie das Guthaben sein.
-- Ungültige Eingaben blockieren den Spin und melden den Fehler im GUI und im Chat.
-- Es zahlt nur ein Drilling in der mittleren Reihe.
-- Lokales Demoguthaben startet bei 1000 Coins und wird in config/bluegamba.properties gespeichert.
-
-## Multiplikatoren
-
-| Drei gleiche Symbole | Auszahlung |
-|---|---:|
-| Kohleerz | 0,5x |
-| Eisenerz | 1,2x |
-| Golderz | 2,0x |
-| Diamanterz | 5,0x |
-| Smaragderz | 10,0x |
-| Ancient Debris | 25,0x |
-
-Der Multiplikator beschreibt die Gesamtauszahlung inklusive Einsatz.
-Beispiel: 100 Coins Einsatz und drei Diamanterze ergeben 500 Coins Auszahlung. Der Nettogewinn beträgt +400 Coins.
-
-Drei Kohleerze zahlen 50 Coins aus; der Nettoverlust beträgt 50 Coins.
-Bei keinem Drilling geht der Einsatz verloren. Teil-Coins werden auf ganze Coins gerundet.
-
-## Voraussetzungen
-
-- Minecraft Java Edition 1.21.11
-- Fabric Loader 0.18.1 oder neuer
-- Fabric API passend für Minecraft 1.21.11
-- Java JDK 21
-- Gradle 8.14.3
-
-## Lokal bauen
-
-1. Installiere JDK 21 und Gradle 8.14.3.
-2. Öffne ein Terminal im Projektordner.
-3. Führe `gradle build` aus.
-4. Die JAR sollte anschließend unter build/libs liegen.
-5. Lege die JAR und Fabric API in den .minecraft/mods-Ordner.
-
-## GitHub
-
-1. Erstelle ein leeres Repository namens bluegamba.
-2. Öffne das Terminal im Projektordner und führe aus:
-
-    git init
-    git add .
-    git commit -m "Initial Blue Gamba mod"
-    git branch -M main
-    git remote add origin https://github.com/DEIN-NAME/bluegamba.git
-    git push -u origin main
-
-Die GitHub-Action baut das Projekt bei Push oder Pull Request.
-Die JAR kann danach in den Actions-Artefakten heruntergeladen werden.
-
-## Einschränkung
-
-Das Projekt ist eine Client-only-Demo. Guthaben und Einsätze existieren
-lokal auf dem jeweiligen Spieler-Client. Es gibt keine gemeinsame
-serverseitige Multiplayer-Wirtschaft.
